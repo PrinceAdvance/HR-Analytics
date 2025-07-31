@@ -50,10 +50,7 @@ st.markdown("""
 @st.cache_data
 def load_and_clean_data():
     """Load and clean the HR dataset"""
-    # For this example, I'll create sample data structure based on the provided CSV
-    # In real implementation, you would load from the actual CSV file
     
-    # Simulating the data structure from your CSV
     np.random.seed(42)
     n_employees = 1470
     
@@ -115,36 +112,36 @@ def create_key_metrics(df):
     avg_satisfaction = df['JobSatisfaction'].mean()
     
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="metric-card">
             <h3>👥 Total Employees</h3>
-            <h2>{}</h2>
+            <h2>{total_employees}</h2>
         </div>
-        """.format(total_employees), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div class="metric-card">
             <h3>📊 Attrition Rate</h3>
-            <h2>{:.1f}%</h2>
+            <h2>{attrition_rate:.1f}%</h2>
         </div>
-        """.format(attrition_rate), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col3:
-        st.markdown("""
+        st.markdown(f"""
         <div class="metric-card">
             <h3>💰 Avg Salary</h3>
-            <h2>${:,.0f}</h2>
+            <h2>${avg_salary:,.0f}</h2>
         </div>
-        """.format(avg_salary), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col4:
-        st.markdown("""
+        st.markdown(f"""
         <div class="metric-card">
             <h3>⭐ Avg Satisfaction</h3>
-            <h2>{:.1f}/5</h2>
+            <h2>{avg_satisfaction:.1f}/5</h2>
         </div>
-        """.format(avg_satisfaction), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 def create_attrition_analysis(df):
     """Create attrition analysis visualizations"""
@@ -227,7 +224,7 @@ def create_demographic_analysis(df):
         gender_counts = df['Gender'].value_counts()
         fig = px.pie(
             values=gender_counts.values,
-            names=gender_counts.index,
+            names=gender_counts.index.tolist(),  # Corrected line
             title="Gender Distribution",
             color_discrete_sequence=['#ff9999', '#66b3ff']
         )
@@ -239,7 +236,7 @@ def create_demographic_analysis(df):
         edu_counts = df['EducationField'].value_counts().head(6)
         fig = px.bar(
             x=edu_counts.values,
-            y=edu_counts.index,
+            y=edu_counts.index.tolist(), # Corrected line
             orientation='h',
             title="Top Education Fields",
             color=edu_counts.values,
@@ -251,10 +248,11 @@ def create_demographic_analysis(df):
     with col3:
         # Marital Status Distribution
         marital_counts = df['MaritalStatus'].value_counts()
-        fig = px.donut(
+        fig = px.pie(
             values=marital_counts.values,
-            names=marital_counts.index,
+            names=marital_counts.index.tolist(), # Corrected line
             title="Marital Status Distribution",
+            hole=0.4, # Use a donut chart instead of a pie chart
             color_discrete_sequence=['#ffcc99', '#ff9999', '#99ccff']
         )
         fig.update_layout(height=300)
@@ -366,11 +364,11 @@ def main():
     st.sidebar.header("🔧 Filters")
     
     # Department filter
-    departments = ['All'] + list(df['Department'].unique())
+    departments = ['All'] + sorted(df['Department'].unique().tolist())
     selected_dept = st.sidebar.selectbox("Select Department", departments)
     
     # Age group filter
-    age_groups = ['All'] + list(df['AgeGroup'].unique())
+    age_groups = ['All'] + sorted(df['AgeGroup'].unique().tolist())
     selected_age = st.sidebar.selectbox("Select Age Group", age_groups)
     
     # Apply filters
